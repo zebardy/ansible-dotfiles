@@ -2,7 +2,7 @@
 downloads: ~/.ansible-downloads/
 
 configure_terminal: true
-configure_osx: false
+configure_osx: true
 
 
 osx_script: "~/.osx --no-restart"
