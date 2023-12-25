@@ -1,0 +1,138 @@
+---
+- name: Check for zsh.
+  shell:
+    cmd: zsh --version
+  ignore_errors: true
+  register: zsh_check
+  
+- name: Install zsh.
+  shell:
+    cmd: sudo apt install zsh -y && chsh -s /usr/bin/zsh && sudo apt-get install fonts-powerline
+  become: true
+  when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
+- name: Check for OMZ install.
+  stat:
+    path: ~/.oh-my-zsh
+  register: omz_dir
+
+- name: install OMZ
+  shell:
+    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  when: not omz_dir.stat.exists
+
+- name: brew install powerlevel10k
+  homebrew:
+    name: powerlevel10k
+    state: present
+  when: ansible_distribution == 'MacOSX'
+
+- name: Copy .zshrc.
+  copy:
+    src: ~/.zshrc
+    dest: ~/.old-zshrc.zsh
+  when: not omz_dir.stat.exists
+
+- name: Add line to ~/.zshrc.
+  lineinfile:
+    path: ~/.zshrc
+    state: present
+    line: source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+  when: ansible_distribution == 'MacOSX' and not omz_dir.stat.exists
+
+- name: Check for powerlevel10k install.
+  stat:
+    path: ~/.oh-my-zsh/custom/themes/powerlevel10k
+  register: pl10k_dir
+
+- name: Install powerlevel10k
+  shell:
+    cmd: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  when: not pl10k_dir.stat.exists and not ansible_distribution == 'MacOSX'
+
+- name: Add line to ~/.zshrc.
+  lineinfile:
+    path: ~/.zshrc
+    state: present
+    regexp: '^ZSH_THEME='
+    line: ZSH_THEME="powerlevel10k/powerlevel10k"
+  when: not ansible_distribution == 'MacOSX'
+
+- name: Add fonts tap
+  homebrew_tap:
+    tap: homebrew/cask-fonts
+    state: present
+  when: ansible_distribution == 'MacOSX'
+
+- name: brew install nerd font
+  homebrew_cask:
+    name: font-meslo-lg-nerd-font
+    state: latest
+  when: ansible_distribution == 'MacOSX'
+
+- name: Create tmp dir for fonts
+  tempfile:
+    state: directory
+    suffix: nerd_fonts
+  register: temp_dir_nerd_fonts
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Update from git
+  git:
+    repo: "https://github.com/ryanoasis/nerd-fonts.git"
+    dest: "{{ temp_dir_nerd_fonts.path }}"
+    depth: 1
+    force: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Select fonts to install
+  find:
+    recurse: yes
+    use_regex: yes
+    paths: "{{ temp_dir_nerd_fonts.path }}/patched-fonts"
+    patterns:
+      - '^.*?((?!Windows).)*?\.ttf$'
+  register: fonts_to_install
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Copy fonts.
+  copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts/{{ item.path | basename }}"
+    src: "{{ item.path }}"
+    remote_src: yes
+  loop: "{{ fonts_to_install.files }}"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Updare font cache
+  shell:
+    cmd: fc-cache -f -v
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Set gnome terminal font.
+  shell:
+    cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Copy powerlevel10k config into place.
+  copy:
+    src: files/terminal/p10k.zsh
+    dest: ~/.p10k.zsh
+    mode: '644'
+
+- name: Ensure p10k config picked up.
+  lineinfile:
+    path: ~/.zshrc
+    state: present
+    line: '[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh'
+
+- name: Ensure .personal.zsh picked up.
+  lineinfile:
+    path: ~/.zshrc
+    state: present
+    line: '[[ ! -f ~/.personal.zsh ]] || source ~/.personal.zsh'
+
+- name: Ensure .managed.zsh picked up.
+  lineinfile:
+    path: ~/.zshrc
+    state: present
+    line: '[[ ! -f ~/.managed.zsh ]] || source ~/.managed.zsh'
