@@ -7,7 +7,7 @@
   
 - name: Install zsh.
   shell:
-    cmd: sudo apt install zsh -y && chsh -s /usr/bin/zsh && sudo apt-get install fonts-powerline
+    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER && sudo apt-get install fonts-powerline
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
 
@@ -75,7 +75,8 @@
     state: directory
     suffix: nerd_fonts
   register: temp_dir_nerd_fonts
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Update from git
   git:
@@ -83,7 +84,8 @@
     dest: "{{ temp_dir_nerd_fonts.path }}"
     depth: 1
     force: yes
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Select fonts to install
   find:
@@ -92,8 +94,8 @@
     paths: "{{ temp_dir_nerd_fonts.path }}/patched-fonts"
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
-  register: fonts_to_install
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Copy fonts.
   copy:
@@ -101,17 +103,20 @@
     src: "{{ item.path }}"
     remote_src: yes
   loop: "{{ fonts_to_install.files }}"
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Updare font cache
   shell:
     cmd: fc-cache -f -v
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Set gnome terminal font.
   shell:
     cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+
 
 - name: Copy powerlevel10k config into place.
   copy:
@@ -136,3 +141,9 @@
     path: ~/.zshrc
     state: present
     line: '[[ ! -f ~/.managed.zsh ]] || source ~/.managed.zsh'
+
+- name: Ensure tmux configured for colours.
+  lineinfile:
+    path: ~/.tmux.conf
+    state: present
+    line: 'set-option -g default-terminal "tmux-256color"'
