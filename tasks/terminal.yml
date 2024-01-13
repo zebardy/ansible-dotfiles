@@ -14,7 +14,6 @@
 - name: Install zsh.
   shell:
     cmd: apt install zsh -y && chsh -s /usr/bin/zsh $USER && apt install fonts-powerline
-  become: true
   when: not zsh_check.rc == 0 and ansible_distribution == 'OtherLinux'
 
 - name: Check for OMZ install.
