@@ -100,8 +100,7 @@
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
   register: fonts_to_install
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
-
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
 
 - name: Copy fonts.
   copy:
@@ -109,20 +108,22 @@
     src: "{{ item.path }}"
     remote_src: yes
   loop: "{{ fonts_to_install.files }}"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
 
-
-- name: Updare font cache
+- name: Update font cache
   shell:
     cmd: fc-cache -f -v
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
-
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
 
 - name: Set gnome terminal font.
   shell:
     cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
 
+- name: Download Meslo nerd font mono.
+  shell:
+    cmd: curl https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/L/Regular/MesloLGLNerdFontMono-Regular.ttf -o ~/font.ttf && termux-reload-settings
+  when: ansible_distribution == 'OtherLinux'
 
 - name: Copy powerlevel10k config into place.
   copy:
