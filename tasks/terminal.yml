@@ -11,6 +11,12 @@
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
 
+- name: Install zsh.
+  shell:
+    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER && sudo apt-get install fonts-powerline
+  become: true
+  when: not zsh_check.rc == 0 and ansible_distribution == 'Android'
+
 - name: Check for OMZ install.
   stat:
     path: ~/.oh-my-zsh
@@ -75,7 +81,7 @@
     state: directory
     suffix: nerd_fonts
   register: temp_dir_nerd_fonts
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Update from git
@@ -84,7 +90,7 @@
     dest: "{{ temp_dir_nerd_fonts.path }}"
     depth: 1
     force: yes
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Select fonts to install
@@ -94,7 +100,7 @@
     paths: "{{ temp_dir_nerd_fonts.path }}/patched-fonts"
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Copy fonts.
@@ -103,19 +109,19 @@
     src: "{{ item.path }}"
     remote_src: yes
   loop: "{{ fonts_to_install.files }}"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Updare font cache
   shell:
     cmd: fc-cache -f -v
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Set gnome terminal font.
   shell:
     cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'Android'
 
 
 - name: Copy powerlevel10k config into place.
