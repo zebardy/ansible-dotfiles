@@ -13,7 +13,7 @@
 
 - name: Install zsh.
   shell:
-    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER && sudo apt-get install fonts-powerline
+    cmd: apt install zsh -y && chsh -s /usr/bin/zsh $USER && apt install fonts-powerline
   become: true
   when: not zsh_check.rc == 0 and ansible_distribution == 'OtherLinux'
 
