@@ -89,7 +89,7 @@
     dest: "{{ temp_dir_nerd_fonts.path }}"
     depth: 1
     force: yes
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
 
 
 - name: Select fonts to install
