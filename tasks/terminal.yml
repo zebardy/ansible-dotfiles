@@ -7,7 +7,7 @@
   
 - name: Install zsh.
   shell:
-    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER && sudo apt-get install fonts-powerline
+    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
 
@@ -99,6 +99,7 @@
     paths: "{{ temp_dir_nerd_fonts.path }}/patched-fonts"
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
+  register: fonts_to_install
   when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
 
 
