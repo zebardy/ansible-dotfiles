@@ -122,7 +122,7 @@
 
 - name: Download Meslo nerd font mono.
   shell:
-    cmd: curl https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/L/Regular/MesloLGLNerdFontMono-Regular.ttf -o ~/font.ttf && termux-reload-settings
+    cmd: curl https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/L/Regular/MesloLGLNerdFontMono-Regular.ttf -o ~/.termux/font.ttf && termux-reload-settings
   when: ansible_distribution == 'OtherLinux'
 
 - name: Alternative copy powerlevel10k config into place.
