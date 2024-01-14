@@ -135,6 +135,7 @@
     src: files/terminal/p10k.zsh
     dest: ~/.p10k.zsh
     mode: '644'
+  when: not ansible_distribution == 'OtherLinux'
 
 - name: Ensure p10k config picked up.
   lineinfile:
