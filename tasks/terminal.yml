@@ -159,4 +159,5 @@
   lineinfile:
     path: ~/.tmux.conf
     state: present
+    create: true
     line: 'set-option -g default-terminal "tmux-256color"'
