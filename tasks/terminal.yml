@@ -125,6 +125,11 @@
     cmd: curl https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/L/Regular/MesloLGLNerdFontMono-Regular.ttf -o ~/font.ttf && termux-reload-settings
   when: ansible_distribution == 'OtherLinux'
 
+- name: Alternative copy powerlevel10k config into place.
+  shell:
+    cmd: cp files/terminal/p10k.zsh ~/.p10k.zsh
+  when: ansible_distribution == 'OtherLinux'
+
 - name: Copy powerlevel10k config into place.
   copy:
     src: files/terminal/p10k.zsh
