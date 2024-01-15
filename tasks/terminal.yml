@@ -7,13 +7,13 @@
   
 - name: Install zsh.
   shell:
-    cmd: sudo apt install zsh -y && sudo chsh -s /usr/bin/zsh $USER
+    cmd: sudo apt install $(which zsh) -y && sudo chsh -s /usr/bin/zsh $USER
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
 
 - name: Install zsh.
   shell:
-    cmd: apt install zsh -y && chsh -s zsh
+    cmd: apt install $(which zsh) -y && chsh -s zsh
   when: not zsh_check.rc == 0 and ansible_distribution == 'OtherLinux'
 
 - name: Check for OMZ install.
@@ -80,8 +80,7 @@
     state: directory
     suffix: nerd_fonts
   register: temp_dir_nerd_fonts
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
-
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
 
 - name: Update from git
   git:
@@ -89,8 +88,7 @@
     dest: "{{ temp_dir_nerd_fonts.path }}"
     depth: 1
     force: yes
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
-
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
 
 - name: Select fonts to install
   find:
@@ -100,7 +98,7 @@
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
   register: fonts_to_install
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
 
 - name: Copy fonts.
   copy:
@@ -108,17 +106,17 @@
     src: "{{ item.path }}"
     remote_src: yes
   loop: "{{ fonts_to_install.files }}"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
 
 - name: Update font cache
   shell:
     cmd: fc-cache -f -v
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
 
 - name: Set gnome terminal font.
   shell:
     cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' or ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
 
 - name: Download Meslo nerd font mono.
   shell:
