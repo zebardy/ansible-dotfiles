@@ -5,13 +5,13 @@
   ignore_errors: true
   register: zsh_check
   
-- name: Install zsh.
+- name: Install zsh 1.
   shell:
     cmd: sudo apt install $(which zsh) -y && sudo chsh -s /usr/bin/zsh $USER
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian')
 
-- name: Install zsh.
+- name: Install zsh 2.
   shell:
     cmd: apt install $(which zsh) -y && chsh -s zsh
   when: not zsh_check.rc == 0 and ansible_distribution == 'OtherLinux'
