@@ -75,12 +75,21 @@
     state: latest
   when: ansible_distribution == 'MacOSX'
 
+- name: Check for Nerd font
+  shell:
+    cmd: fc-list | grep -i MesloLGLNerdFontMono-Regular
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  ignore_errors: true
+  register: nerd_font
+
 - name: Create tmp dir for fonts
   tempfile:
     state: directory
     suffix: nerd_fonts
   register: temp_dir_nerd_fonts
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian' or ansible_distribution == 'OtherLinux'
+  when: 
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - nerd_font.rc == 0
 
 - name: Update from git
   git:
@@ -88,7 +97,9 @@
     dest: "{{ temp_dir_nerd_fonts.path }}"
     depth: 1
     force: yes
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  when: 
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - nerd_font.rc == 0
 
 - name: Select fonts to install
   find:
@@ -98,7 +109,9 @@
     patterns:
       - '^.*?((?!Windows).)*?\.ttf$'
   register: fonts_to_install
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  when:
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - nerd_font.rc == 0
 
 - name: Copy fonts.
   copy:
@@ -106,17 +119,30 @@
     src: "{{ item.path }}"
     remote_src: yes
   loop: "{{ fonts_to_install.files }}"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  when:
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - nerd_font.rc == 0
 
 - name: Update font cache
   shell:
-    cmd: fc-cache -f -v
+    cmd: fc-cache -f -v && rm -rf {{ temp_dir_nerd_fonts.path }}
+  when:
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - nerd_font.rc == 0
+
+- name: Check for Gnome terminal
+  shell:
+    cmd: which gnome-terminal
   when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  ignore_errors: true
+  register: gnome_terminal
 
 - name: Set gnome terminal font.
   shell:
     cmd: gconftool-2 --set /apps/gnome-terminal/profiles/Default/font --type string "MesloLGL Nerd Font Mono"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+  when:
+    - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Debian'
+    - gnome_terminal.rc == 0
 
 - name: Download Meslo nerd font mono.
   shell:
