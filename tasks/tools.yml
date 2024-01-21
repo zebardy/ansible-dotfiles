@@ -1,6 +1,7 @@
 ---
 
 - name: Install tools (apt)
+  become: true
   apt:
     name: "{{ item }}"
     state: "latest"
