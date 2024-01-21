@@ -9,7 +9,7 @@
   shell:
     cmd: sudo apt install $(which zsh) -y && sudo chsh -s /usr/bin/zsh $USER
   become: true
-  when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian')
 
 - name: Install zsh.
   shell:
