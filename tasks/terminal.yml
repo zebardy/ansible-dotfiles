@@ -37,6 +37,7 @@
   when: not omz_dir.stat.exists
 
 - name: brew install powerlevel10k
+  become: true
   homebrew:
     name: powerlevel10k
     state: present
@@ -74,12 +75,14 @@
   when: not ansible_distribution == 'MacOSX'
 
 - name: Add fonts tap
+  become: true
   homebrew_tap:
     tap: homebrew/cask-fonts
     state: present
   when: ansible_distribution == 'MacOSX'
 
 - name: brew install nerd font
+  become: true
   homebrew_cask:
     name: font-meslo-lg-nerd-font
     state: latest
