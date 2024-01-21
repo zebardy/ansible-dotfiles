@@ -7,14 +7,24 @@
   
 - name: Install zsh 1.
   shell:
-    cmd: sudo apt install zsh -y && sudo chsh -s $(which zsh) $USER
+    cmd: sudo apt install zsh -y
   become: true
   when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian')
 
 - name: Install zsh 2.
   shell:
-    cmd: apt install zsh -y && chsh -s zsh
+    cmd: apt install zsh -y
   when: not zsh_check.rc == 0 and ansible_distribution == 'OtherLinux'
+
+- name: Set zsh as login shell.
+  shell:
+    cmd: sudo chsh -s $(which zsh) $USER
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian'
+
+- name: Set zsh as login shell.
+  shell:
+    cmd: chsh -s zsh
+  when: ansible_distribution == 'OtherLinux'
 
 - name: Check for OMZ install.
   stat:
