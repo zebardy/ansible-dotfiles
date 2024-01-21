@@ -9,4 +9,5 @@
     - neofetch
     - vim
     - htop
+    - tmux
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' 
