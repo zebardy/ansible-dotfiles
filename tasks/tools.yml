@@ -1,0 +1,12 @@
+---
+
+- name: Install tools (apt)
+  apt:
+    name: "{{ item }}"
+    state: "latest"
+    update_cache: true
+  loop:
+    - neofetch
+    - vim
+    - htop
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian' or ansible_distribution == 'Armbian' 

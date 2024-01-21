@@ -1,4 +1,8 @@
 ---
+- import_tasks: tasks/tools.yml
+  when: configure_tools
+  tags: ['tools']
+
 - import_tasks: tasks/terminal.yml
   when: configure_terminal
   tags: ['terminal']
