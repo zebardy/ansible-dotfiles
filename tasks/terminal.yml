@@ -9,7 +9,7 @@
   shell:
     cmd: sudo apt install zsh -y
   become: true
-  when: not zsh_check.rc == 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian')
+  when: not zsh_check.rc == 0 and ansible_os_family == 'Debian'
 
 - name: Install zsh 2.
   shell:
@@ -19,7 +19,7 @@
 - name: Set zsh as login shell.
   shell:
     cmd: sudo chsh -s $(which zsh) $USER
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Raspbian'
+  when: ansible_os_family == 'Debian'
 
 - name: Set zsh as login shell.
   shell:
@@ -31,9 +31,37 @@
     path: ~/.oh-my-zsh
   register: omz_dir
 
-- name: install OMZ
-  shell:
-    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#- name: install OMZ
+#  shell:
+#    cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#  when: not omz_dir.stat.exists
+
+- name: Establish install location.
+  set_fact:
+    omz_install_path: "~/{{ omz_install_directory }}"
+  when: not omz_dir.stat.exists
+
+- name: Clone Oh My ZSH repo for user.
+  git:
+    repo: "{{ omz_git_repository }}"
+    dest: "{{ omz_install_path }}"
+    update: true
+    accept_hostkey: true
+    version: "master"
+  register: "omz_clone"
+  when: not omz_dir.stat.exists
+
+- name: Copy .zshrc.
+  copy:
+    src: ~/.zshrc
+    dest: ~/.old-zshrc.zsh
+  when: not omz_dir.stat.exists
+
+- name: Copy zshrc into place.
+  copy:
+    src: files/terminal/zshrc
+    dest: ~/.zshrc
+    mode: '644'
   when: not omz_dir.stat.exists
 
 - name: brew install powerlevel10k
@@ -42,12 +70,6 @@
     name: powerlevel10k
     state: present
   when: ansible_distribution == 'MacOSX'
-
-- name: Copy .zshrc.
-  copy:
-    src: ~/.zshrc
-    dest: ~/.old-zshrc.zsh
-  when: not omz_dir.stat.exists
 
 - name: Add line to ~/.zshrc.
   lineinfile:
