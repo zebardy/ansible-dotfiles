@@ -1,11 +1,16 @@
 ---
 downloads: ~/.ansible-downloads/
 
+configure_tools: true
 configure_terminal: true
 configure_osx: true
 
 
 osx_script: "~/.osx --no-restart"
+
+omz_git_repository: "https://github.com/robbyrussell/oh-my-zsh.git"
+omz_install_directory: ".oh-my-zsh"
+
 
 # Install packages from other package managers.
 # Note: You are responsible for making sure the required package managers are
